@@ -187,7 +187,9 @@ Plus two flow screens that aren't tabs:
 
 ## 9. Build phases
 
-**Current phase**: Phase 0 — Foundation.
+**Current phase**: Phase 1 — Static UI.
+
+**Phase 0 · Foundation** — COMPLETE. Deployed at cadence-puce-five.vercel.app. Installed on iPhone home screen.
 
 **Phase 0 · Foundation (≈ 1 week).** Vite + React + TypeScript project. `vite-plugin-pwa` configured. Deploy to Vercel. Install on iPhone home screen. End: "Hello, Igor" renders on PC and on phone home screen as installed PWA.
 
@@ -227,7 +229,11 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
-_(empty — Phase 0 hasn't started)_
+- Named exports vs default exports (`import { X }` vs `import X`) — modules choose one style; TypeScript tells you which.
+- React Fragment (`<>...</>`) — returns multiple elements without adding a DOM node.
+- `public/` folder in Vite — files here are served at the root URL, used for static assets like PWA icons.
+- PWA manifest — `name`, `short_name`, `theme_color`, `icons` tell the browser/phone how to install the app.
+- `registerType: 'autoUpdate'` — service worker silently updates on new deploys.
 
 ---
 
@@ -243,4 +249,4 @@ _(empty — Phase 0 hasn't started)_
 
 ---
 
-_Last updated: at creation. Update this footer when the file changes significantly._
+_Last updated: Phase 0 complete (2026-05-22)._
