@@ -187,9 +187,11 @@ Plus two flow screens that aren't tabs:
 
 ## 9. Build phases
 
-**Current phase**: Phase 1 — Static UI.
+**Current phase**: Phase 2 — Goals CRUD locally.
 
 **Phase 0 · Foundation** — COMPLETE. Deployed at cadence-puce-five.vercel.app. Installed on iPhone home screen.
+
+**Phase 1 · Static UI** — COMPLETE. Five tabs (Today, Goals, Ask, Pulse), GoalDetail drill-down, CheckIn flow shell. Hardcoded data. Navigation works.
 
 **Phase 0 · Foundation (≈ 1 week).** Vite + React + TypeScript project. `vite-plugin-pwa` configured. Deploy to Vercel. Install on iPhone home screen. End: "Hello, Igor" renders on PC and on phone home screen as installed PWA.
 
@@ -229,6 +231,9 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
+- `useParams()` returns an object — destructure it (`const { id } = useParams()`) to get the value you want.
+- `Link` vs `NavLink` — `Link` for plain navigation, `NavLink` when you need active state styling.
+- Dynamic route segments (`:id`) — match any value in that URL position; read it with `useParams`.
 - Named exports vs default exports (`import { X }` vs `import X`) — modules choose one style; TypeScript tells you which.
 - React Fragment (`<>...</>`) — returns multiple elements without adding a DOM node.
 - `public/` folder in Vite — files here are served at the root URL, used for static assets like PWA icons.
@@ -249,4 +254,4 @@ Auto-updating. When a new concept is genuinely learned (not just touched), appen
 
 ---
 
-_Last updated: Phase 0 complete (2026-05-22)._
+_Last updated: Phase 1 complete (2026-05-23)._
