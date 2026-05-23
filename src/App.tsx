@@ -7,6 +7,7 @@ import CheckIn from './pages/CheckIn'
 import Today from './pages/Today'
 import TabBar from './components/TabBar'
 import GoalDetail from './pages/GoalDetail'
+import CreateGoal from './pages/CreateGoal'
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Today />} />
         <Route path='/goals' element={<Goals />} />
+        <Route path='/goals/new' element={<CreateGoal />} />
         <Route path='/goals/:id' element={<GoalDetail />} />
         <Route path='/ask' element={<Ask />} />
         <Route path='/pulse' element={<Pulse />} />

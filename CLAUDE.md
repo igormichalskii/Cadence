@@ -187,11 +187,13 @@ Plus two flow screens that aren't tabs:
 
 ## 9. Build phases
 
-**Current phase**: Phase 2 — Goals CRUD locally.
+**Current phase**: Phase 3 — AI integration.
 
 **Phase 0 · Foundation** — COMPLETE. Deployed at cadence-puce-five.vercel.app. Installed on iPhone home screen.
 
 **Phase 1 · Static UI** — COMPLETE. Five tabs (Today, Goals, Ask, Pulse), GoalDetail drill-down, CheckIn flow shell. Hardcoded data. Navigation works.
+
+**Phase 2 · Goals CRUD locally** — COMPLETE. Dexie + IndexedDB. TypeScript types. Goal create/pause/resume/kill. Goals load live from IndexedDB.
 
 **Phase 0 · Foundation (≈ 1 week).** Vite + React + TypeScript project. `vite-plugin-pwa` configured. Deploy to Vercel. Install on iPhone home screen. End: "Hello, Igor" renders on PC and on phone home screen as installed PWA.
 
@@ -231,6 +233,9 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
+- `useLiveQuery(() => db.table.toArray())` — Dexie hook that re-renders the component whenever the queried data changes.
+- `useNavigate()` returns a function; call it with a path to navigate programmatically (e.g. after form submit).
+- `.map()` on arrays in JSX — must be wrapped in `{}` and each item needs a `key` prop.
 - `useParams()` returns an object — destructure it (`const { id } = useParams()`) to get the value you want.
 - `Link` vs `NavLink` — `Link` for plain navigation, `NavLink` when you need active state styling.
 - Dynamic route segments (`:id`) — match any value in that URL position; read it with `useParams`.
@@ -254,4 +259,4 @@ Auto-updating. When a new concept is genuinely learned (not just touched), appen
 
 ---
 
-_Last updated: Phase 1 complete (2026-05-23)._
+_Last updated: Phase 2 complete (2026-05-23)._

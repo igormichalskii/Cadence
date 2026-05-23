@@ -1,30 +1,41 @@
-import { useParams } from "react-router-dom"
-import { Link } from "react-router-dom"
+import { Link, useParams, useNavigate } from "react-router-dom"
+import { useLiveQuery } from "dexie-react-hooks"
+import { db } from "../lib/db"
 
 export default function GoalDetail() {
-    const { id } = useParams();
+    const { id } = useParams()
+    const navigate = useNavigate()
+    const goal = useLiveQuery(() => db.goals.get(id!), [id])
+
+    if (!goal) return <p>Loading...</p>
+
+    async function setStatus(status: 'active' | 'paused' | 'killed') {
+        await db.goals.update(id!, { status })
+        if (status === 'killed') navigate('/goals')
+    }
+
     return (
         <>
             <div className="goal-detail-header">
                 <Link to="/goals">← Goals</Link>
-                <span className="goal-detail-type">habit</span>
+                <span className="goal-detail-type">{goal.type}</span>
             </div>
             <div className="goal-detail-name">
-                <h2>Morning run</h2>
-                <span className="goal-detail-status">active</span>
+                <h2>{goal.name}</h2>
+                <span className="goal-detail-status">{goal.status}</span>
             </div>
-            <div className="goal-detail-meta">
-                <p>07:00 · neighborhood loop · 5x/week</p>
-            </div>
-            <div className="goal-detail-consistency">
-                <h3>This month</h3>
-                <p>3 of 4 weeks on target. Friday is the recurring slip.</p>
+            {goal.anchor_time && (
+                <div className="goal-detail-meta">
+                    <p>{goal.anchor_time}{goal.anchor_place ? ` · ${goal.anchor_place}` : ''}{goal.frequency_target ? ` · ${goal.frequency_target}` : ''}</p>
+                </div>
+            )}
+            <div className="goal-detail-why">
+                <p>{goal.why}</p>
             </div>
             <div className="goal-detail-actions">
-                <button>Log activity</button>
-                <button>Evolve</button>
-                <button>Pause</button>
-                <button>Kill</button>
+                {goal.status === 'active' && <button onClick={() => setStatus('paused')}>Pause</button>}
+                {goal.status === 'paused' && <button onClick={() => setStatus('active')}>Resume</button>}
+                {goal.status !== 'killed' && <button onClick={() => setStatus('killed')}>Kill</button>}
             </div>
         </>
     )
