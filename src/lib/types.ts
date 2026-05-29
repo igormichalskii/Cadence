@@ -21,3 +21,12 @@ export interface CheckIn {
     note?: string;
     ai_synthesis?: string;
 }
+
+export interface Activity {
+    id: string;
+    goal_id: string;
+    timestamp: number;
+    status: ('done' | 'missed_drift' | 'missed_life');
+    duration_min?: number;
+    note?: string;
+}

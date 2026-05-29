@@ -1,6 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../lib/db"
+import type { Activity } from "../lib/types"
 
 export default function GoalDetail() {
     const { id } = useParams()
@@ -12,6 +13,16 @@ export default function GoalDetail() {
     async function setStatus(status: 'active' | 'paused' | 'killed') {
         await db.goals.update(id!, { status })
         if (status === 'killed') navigate('/goals')
+    }
+
+    async function logActivity(status: 'done' | 'missed_drift' | 'missed_life') {
+        const activity: Activity = {
+            id: crypto.randomUUID(),
+            goal_id: id!,
+            timestamp: Date.now(),
+            status
+        }
+        await db.activities.add(activity)
     }
 
     return (
@@ -37,6 +48,14 @@ export default function GoalDetail() {
                 {goal.status === 'paused' && <button onClick={() => setStatus('active')}>Resume</button>}
                 {goal.status !== 'killed' && <button onClick={() => setStatus('killed')}>Kill</button>}
             </div>
+            {goal.status === 'active' &&
+                <div className="goal-detail-log">
+                    <button onClick={() => logActivity('done')}>Done</button>
+                    <button onClick={() => logActivity('missed_drift')}>Missed Drift</button>
+                    <button onClick={() => logActivity('missed_life')}>Missed Life</button>
+                </div>
+            }
+
         </>
     )
 }
