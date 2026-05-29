@@ -9,6 +9,7 @@ function CheckIn() {
     const [mind, setMind] = useState<CheckIn['mind']>('calm')
     const [note, setNote] = useState('')
     async function submit() {
+        const prompt = `Morning check-in. Energy: ${energy}, mind: ${mind}${note ? `, note: ${note}` : ''}. Give me a one-line JARVIS response.`;
         const checkin: CheckIn = {
             id: crypto.randomUUID(),
             kind: 'morning',
@@ -18,6 +19,13 @@ function CheckIn() {
             note: note || undefined
         }
         await db.checkins.add(checkin)
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+        })
+        const data = await response.json();
+        await db.checkins.update(checkin.id, { ai_synthesis: data.content })
         navigate('/')
     }
     return (
@@ -86,8 +94,8 @@ function CheckIn() {
             </div>
             <div className="question">
                 <p>anything I should know?</p>
-                <textarea 
-                    name="question-area" 
+                <textarea
+                    name="question-area"
                     id="question-area"
                     value={note}
                     onChange={e => setNote(e.target.value)}
