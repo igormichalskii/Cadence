@@ -1,4 +1,25 @@
+import { useState } from "react"
+import { db } from "../lib/db"
+import type { CheckIn } from "../lib/types"
+import { useNavigate } from "react-router-dom"
+
 function CheckIn() {
+    const navigate = useNavigate()
+    const [energy, setEnergy] = useState<CheckIn['energy']>('low')
+    const [mind, setMind] = useState<CheckIn['mind']>('calm')
+    const [note, setNote] = useState('')
+    async function submit() {
+        const checkin: CheckIn = {
+            id: crypto.randomUUID(),
+            kind: 'morning',
+            timestamp: Date.now(),
+            energy,
+            mind,
+            note: note || undefined
+        }
+        await db.checkins.add(checkin)
+        navigate('/')
+    }
     return (
         <>
             <div className="head">
@@ -11,16 +32,48 @@ function CheckIn() {
             </div>
             <div className="energy">
                 <p>energy</p>
-                <button>Low</button>
-                <button>Mid</button>
-                <button>High</button>
+                <button
+                    onClick={e => setEnergy('low')}
+                >
+                    Low
+                </button>
+                <button
+                    onClick={e => setEnergy('mid')}
+                >
+                    Mid
+                </button>
+                <button
+                    onClick={e => setEnergy('high')}
+                >
+                    High
+                </button>
             </div>
             <div className="mind">
-                <button>Focused</button>
-                <button>Scattered</button>
-                <button>Heavy</button>
-                <button>Calm</button>
-                <button>Tired</button>
+                <button
+                    onClick={e => setMind('focused')}
+                >
+                    Focused
+                </button>
+                <button
+                    onClick={e => setMind('scattered')}
+                >
+                    Scattered
+                </button>
+                <button
+                    onClick={e => setMind('heavy')}
+                >
+                    Heavy
+                </button>
+                <button
+                    onClick={e => setMind('calm')}
+                >
+                    Calm
+                </button>
+                <button
+                    onClick={e => setMind('tired')}
+                >
+                    Tired
+                </button>
             </div>
             <div className="tasks">
                 <div className="tasks-head">
@@ -33,9 +86,18 @@ function CheckIn() {
             </div>
             <div className="question">
                 <p>anything I should know?</p>
-                <textarea name="question-area" id="question-area"></textarea>
+                <textarea 
+                    name="question-area" 
+                    id="question-area"
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                ></textarea>
             </div>
-            <button>Set the day</button>
+            <button
+                onClick={submit}
+            >
+                Set the day
+            </button>
         </>
     )
 }
