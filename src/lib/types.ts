@@ -30,3 +30,18 @@ export interface Activity {
     duration_min?: number;
     note?: string;
 }
+
+export interface Pulse {
+    id: string;
+    week_start: number;
+    opening_synthesis: string;
+    next_week_focus?: string;
+}
+
+export interface PulseDecision {
+    id: string;
+    pulse_id: string;
+    goal_id: string;
+    decision: ('keep' | 'evolve' | 'pause' | 'kill');
+    note?: string;
+}
