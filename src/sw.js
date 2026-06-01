@@ -3,7 +3,7 @@ import { precacheAndRoute } from 'workbox-precaching';
 precacheAndRoute(self.__WB_MANIFEST);
 
 self.addEventListener('push', function (event) {
-    const data = event.data.json()
+    const data = event.data.text()
     let title = 'JARVIS'
     let body = data
     try {
