@@ -41,44 +41,44 @@ function CheckIn() {
             <div className="energy">
                 <p>energy</p>
                 <button
-                    onClick={e => setEnergy('low')}
+                    onClick={() => setEnergy('low')}
                 >
                     Low
                 </button>
                 <button
-                    onClick={e => setEnergy('mid')}
+                    onClick={() => setEnergy('mid')}
                 >
                     Mid
                 </button>
                 <button
-                    onClick={e => setEnergy('high')}
+                    onClick={() => setEnergy('high')}
                 >
                     High
                 </button>
             </div>
             <div className="mind">
                 <button
-                    onClick={e => setMind('focused')}
+                    onClick={() => setMind('focused')}
                 >
                     Focused
                 </button>
                 <button
-                    onClick={e => setMind('scattered')}
+                    onClick={() => setMind('scattered')}
                 >
                     Scattered
                 </button>
                 <button
-                    onClick={e => setMind('heavy')}
+                    onClick={() => setMind('heavy')}
                 >
                     Heavy
                 </button>
                 <button
-                    onClick={e => setMind('calm')}
+                    onClick={() => setMind('calm')}
                 >
                     Calm
                 </button>
                 <button
-                    onClick={e => setMind('tired')}
+                    onClick={() => setMind('tired')}
                 >
                     Tired
                 </button>
