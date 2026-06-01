@@ -1,3 +1,5 @@
+import { postState } from './state'
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     let cleaned = base64String.replaceAll('-', '+').replaceAll('_', '/')
     const pad = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -19,5 +21,7 @@ export async function subscribeToPush() {
     })
 
     localStorage.setItem('pushSubscription', JSON.stringify(subscription))
+    // Hand the subscription to the server so the escalation cron can reach this device.
+    await postState({ subscription })
     return subscription
 }

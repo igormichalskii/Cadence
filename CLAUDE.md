@@ -187,7 +187,7 @@ Plus two flow screens that aren't tabs:
 
 ## 9. Build phases
 
-**Current phase**: Phase 6 — Polish (Web Push shipped; PC startup auto-open + notification escalation remain).
+**Current phase**: Phase 6 — Polish (COMPLETE in code). Web Push, server-side escalation (Vercel KV + Cron), and background observation generation all shipped. PC startup auto-open is scripted (`scripts/`) pending one-time Task Scheduler registration. Escalation needs provisioning before it's live — see `ACTIVATION.md`. Alpha is feature-complete; remaining work is testing once Anthropic credits are added.
 
 **Phase 0 · Foundation** — COMPLETE. Deployed at cadence-puce-five.vercel.app. Installed on iPhone home screen.
 
@@ -201,7 +201,9 @@ Plus two flow screens that aren't tabs:
 
 **Phase 5 · Pulse + observations** — COMPLETE (core). Pulse loads live goals, records keep/evolve/pause/kill decisions, JARVIS weekly synthesis wired. `Pulse` + `PulseDecision` types/tables added. Background observation generation not yet built.
 
-**Phase 6 · Polish** — IN PROGRESS. Web Push notifications shipped (VAPID, `api/push.ts`, `src/sw.js` via injectManifest, subscribe flow). Remaining: PC startup auto-open, notification escalation on low morning state.
+**Phase 6 · Polish** — COMPLETE (in code; activation pending). Web Push shipped (VAPID, `api/push.ts`, `src/sw.js` via injectManifest, subscribe flow). Server-side notification escalation shipped: `api/state.ts` writes push subscription + latest morning check-in snapshot to Vercel KV; `api/escalate.ts` is a daily Vercel Cron (`vercel.json`, 11:00 UTC, `CRON_SECRET`-guarded) that fires a check-in reminder, a low-state JARVIS line, or a Friday pulse nudge — quiet otherwise. Background observation generation shipped (`src/lib/observations.ts`, Dexie v5 `observations` table, surfaced in Pulse). PC startup auto-open scripted (`scripts/open-cadence.ps1` + Task Scheduler doc). See `ACTIVATION.md` for the provisioning steps (KV store, CRON_SECRET) needed to go live.
+
+Note: escalation adds a deliberate, minimal one-way device→server push (subscription + check-in snapshot only). This was an explicit decision by Igor, overriding the "sync is post-alpha" default for this one feature. Goals/activities/etc. still live only in IndexedDB; full sync + auth remain post-alpha.
 
 **Phase 0 · Foundation (≈ 1 week).** Vite + React + TypeScript project. `vite-plugin-pwa` configured. Deploy to Vercel. Install on iPhone home screen. End: "Hello, Igor" renders on PC and on phone home screen as installed PWA.
 
@@ -241,6 +243,12 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
+- Vercel Cron — declared in `vercel.json` (`{ "crons": [{ "path", "schedule" }] }`); Vercel hits the path on a cron schedule (UTC). Hobby plan = once-per-day granularity, so branch logic by day/state inside one job. Vercel sends `Authorization: Bearer ${CRON_SECRET}` if that env var is set — check it to keep the endpoint private.
+- Vercel KV (`@vercel/kv`) — serverless key-value (Upstash Redis). `import { kv }; await kv.set(key, obj); await kv.get<T>(key)`. Stores/serializes JSON automatically. Creating a KV store in the dashboard injects `KV_REST_API_URL`/`KV_REST_API_TOKEN`.
+- Vercel function file convention — each `api/*.ts` is a separate serverless function; a leading underscore (`api/_jarvis.ts`) keeps a file from being treated as a route, so it's safe to use as a shared import.
+- Parsing AI output as JSON — models wrap JSON in prose/code fences; slice from first `[` to last `]` before `JSON.parse`, wrap in try/catch, then validate each field before trusting it. Always have a fallback path for when the AI is unreachable (e.g. no credits).
+- Dexie range query — `db.table.where('field').above(value).toArray()` filters an indexed numeric field (e.g. timestamp) to a range; `.orderBy('field').reverse()` sorts.
+- `moduleResolution: "bundler"` (tsconfig) — allows extensionless relative imports; the `api/` folder isn't in the app/node tsconfig projects, so Vercel typechecks/bundles those functions separately at deploy.
 - Service worker `push` event — `self.registration.showNotification(title, { body })` displays a notification; `self` is the SW global scope (like `window`). Parse payload with `event.data.text()` then `JSON.parse` in a try/catch (DevTools sends plain strings).
 - `vite-plugin-pwa` `strategies: 'injectManifest'` — lets you write your own service worker (`src/sw.js`); add `precacheAndRoute(self.__WB_MANIFEST)` to keep PWA caching. SW only bundles in a prod build, not dev.
 - Web Push subscription — `registration.pushManager.subscribe({ userVisibleOnly, applicationServerKey })`; `applicationServerKey` must be a `Uint8Array` (convert VAPID base64 key with a `urlBase64ToUint8Array` helper).
@@ -279,4 +287,4 @@ Auto-updating. When a new concept is genuinely learned (not just touched), appen
 
 ---
 
-_Last updated: Phases 3-5 complete, Phase 6 Web Push shipped (2026-06-01)._
+_Last updated: Phase 6 complete in code — escalation (KV + Cron), observation generation, PC-startup script. Activation + live testing pending (2026-06-01)._

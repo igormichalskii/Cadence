@@ -2,6 +2,7 @@ import { useState } from "react"
 import { db } from "../lib/db"
 import type { CheckIn } from "../lib/types"
 import { useNavigate } from "react-router-dom"
+import { postState } from "../lib/state"
 
 function CheckInPage() {
     const navigate = useNavigate()
@@ -19,6 +20,10 @@ function CheckInPage() {
             note: note || undefined
         }
         await db.checkins.add(checkin)
+        // Snapshot the check-in to the server so the escalation cron can read today's state.
+        if (checkin.kind === 'morning') {
+            await postState({ checkIn: { timestamp: checkin.timestamp, energy, mind } })
+        }
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

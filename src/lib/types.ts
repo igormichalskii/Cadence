@@ -31,6 +31,14 @@ export interface Activity {
     note?: string;
 }
 
+export interface Observation {
+    id: string;
+    goal_id?: string;
+    timestamp: number;
+    content: string;
+    kind: ('pattern' | 'nudge' | 'question');
+}
+
 export interface Pulse {
     id: string;
     week_start: number;

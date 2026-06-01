@@ -2,10 +2,19 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "../lib/db"
 import type { PulseDecision } from "../lib/types";
 import { useEffect, useState } from "react";
+import { generateObservations } from "../lib/observations";
 
 function Pulse() {
     const goals = useLiveQuery(() => db.goals.toArray());
+    const observations = useLiveQuery(() => db.observations.orderBy('timestamp').reverse().toArray());
     const [synthesis, setSynthesis] = useState('');
+    const [generating, setGenerating] = useState(false);
+
+    async function refreshObservations() {
+        setGenerating(true)
+        await generateObservations()
+        setGenerating(false)
+    }
     useEffect(() => {
         if (!goals || goals.length === 0) return;
         async function fetchSynthesis() {
@@ -39,6 +48,20 @@ function Pulse() {
             </div>
             <div className="pulse-synthesis">
                 <p>{synthesis}</p>
+            </div>
+            <div className="pulse-observations">
+                <div className="pulse-observations-head">
+                    <h3>Observations</h3>
+                    <button onClick={refreshObservations} disabled={generating}>
+                        {generating ? 'Reading…' : 'Refresh'}
+                    </button>
+                </div>
+                {observations?.map(obs => (
+                    <div className="observation" key={obs.id}>
+                        <span className="observation-kind">{obs.kind}</span>
+                        <p>{obs.content}</p>
+                    </div>
+                ))}
             </div>
             <div className="pulse-goals">
                 <h3>Goal decisions</h3>
