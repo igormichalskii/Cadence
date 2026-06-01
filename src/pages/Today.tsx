@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { subscribeToPush } from '../lib/push'
 
 function Today() {
     const [greeting, setGreeting] = useState('')
@@ -35,6 +36,11 @@ function Today() {
                 <div>Adherence</div>
                 <div>Focus hours</div>
             </div>
+            <button
+                onClick={subscribeToPush}
+            >
+                Enable notifications
+            </button>
         </>
     )
 }
