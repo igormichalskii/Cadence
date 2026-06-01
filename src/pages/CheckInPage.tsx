@@ -3,7 +3,7 @@ import { db } from "../lib/db"
 import type { CheckIn } from "../lib/types"
 import { useNavigate } from "react-router-dom"
 
-function CheckIn() {
+function CheckInPage() {
     const navigate = useNavigate()
     const [energy, setEnergy] = useState<CheckIn['energy']>('low')
     const [mind, setMind] = useState<CheckIn['mind']>('calm')
@@ -110,4 +110,4 @@ function CheckIn() {
     )
 }
 
-export default CheckIn
+export default CheckInPage
