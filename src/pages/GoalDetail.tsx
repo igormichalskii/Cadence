@@ -7,6 +7,7 @@ export default function GoalDetail() {
     const { id } = useParams()
     const navigate = useNavigate()
     const goal = useLiveQuery(() => db.goals.get(id!), [id])
+    const activities = useLiveQuery(() => db.activities.where('goal_id').equals(id!).reverse().toArray(), [id])
 
     if (!goal) return <p>Loading...</p>
 
@@ -55,7 +56,14 @@ export default function GoalDetail() {
                     <button onClick={() => logActivity('missed_life')}>Missed Life</button>
                 </div>
             }
-
+            <div className="activities">
+                {activities?.map(activity => (
+                    <div className="activity" key={activity.id}>
+                        <p>{activity.status}</p>
+                        <span>{new Date(activity.timestamp).toLocaleDateString()}</span>
+                    </div>
+                ))}
+            </div>
         </>
     )
 }
