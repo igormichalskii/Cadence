@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@fontsource/inter": "^5.2.8",
+    "@tabler/icons-react": "^3.44.0",
     "@vercel/kv": "^3.0.0",
     "dexie": "^4.4.2",
     "dexie-react-hooks": "^4.4.0",

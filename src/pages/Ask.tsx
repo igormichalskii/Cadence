@@ -10,40 +10,30 @@ function Ask() {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: updatedMessages.slice(1)})
+            body: JSON.stringify({ messages: updatedMessages.slice(1) })
         })
         const data = await response.json()
         setMessages([...updatedMessages, { role: 'assistant', content: data.content }])
     }
     return (
-        <>
-            <div className="ask-header">
-                <h2>Ask JARVIS</h2>
-            </div>
+        <div className="ask-screen">
+            <h1>Ask JARVIS</h1>
             <div className="ask-messages">
                 {messages.map((message, index) => (
-                    <div
-                        className={"message " + message.role}
-                        key={index}
-                    >
+                    <div className={"message " + message.role} key={index}>
                         {message.content}
                     </div>
                 ))}
-
             </div>
             <div className="ask-input">
                 <textarea
-                    placeholder="Ask something..."
+                    placeholder="Ask something…"
                     value={input}
                     onChange={e => setInput(e.target.value)}
                 />
-                <button
-                    onClick={send}
-                >
-                    Send
-                </button>
+                <button className="cta-primary" onClick={send}>Send</button>
             </div>
-        </>
+        </div>
     )
 }
 
