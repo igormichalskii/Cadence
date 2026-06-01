@@ -187,13 +187,21 @@ Plus two flow screens that aren't tabs:
 
 ## 9. Build phases
 
-**Current phase**: Phase 3 — AI integration.
+**Current phase**: Phase 6 — Polish (Web Push shipped; PC startup auto-open + notification escalation remain).
 
 **Phase 0 · Foundation** — COMPLETE. Deployed at cadence-puce-five.vercel.app. Installed on iPhone home screen.
 
 **Phase 1 · Static UI** — COMPLETE. Five tabs (Today, Goals, Ask, Pulse), GoalDetail drill-down, CheckIn flow shell. Hardcoded data. Navigation works.
 
 **Phase 2 · Goals CRUD locally** — COMPLETE. Dexie + IndexedDB. TypeScript types. Goal create/pause/resume/kill. Goals load live from IndexedDB.
+
+**Phase 3 · AI integration** — COMPLETE. Hono backend at `api/chat.ts` proxies Anthropic (key server-side, `claude-sonnet-4-6`, JARVIS system prompt). Today greeting + Ask conversation wired. (Untested live pending API credits.)
+
+**Phase 4 · Check-ins + activity logging** — COMPLETE. CheckIn writes state to Dexie + JARVIS synthesis. Activity logging from GoalDetail. Activity history timeline in GoalDetail. `CheckIn` + `Activity` types and Dexie tables added.
+
+**Phase 5 · Pulse + observations** — COMPLETE (core). Pulse loads live goals, records keep/evolve/pause/kill decisions, JARVIS weekly synthesis wired. `Pulse` + `PulseDecision` types/tables added. Background observation generation not yet built.
+
+**Phase 6 · Polish** — IN PROGRESS. Web Push notifications shipped (VAPID, `api/push.ts`, `src/sw.js` via injectManifest, subscribe flow). Remaining: PC startup auto-open, notification escalation on low morning state.
 
 **Phase 0 · Foundation (≈ 1 week).** Vite + React + TypeScript project. `vite-plugin-pwa` configured. Deploy to Vercel. Install on iPhone home screen. End: "Hello, Igor" renders on PC and on phone home screen as installed PWA.
 
@@ -233,6 +241,18 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
+- Service worker `push` event — `self.registration.showNotification(title, { body })` displays a notification; `self` is the SW global scope (like `window`). Parse payload with `event.data.text()` then `JSON.parse` in a try/catch (DevTools sends plain strings).
+- `vite-plugin-pwa` `strategies: 'injectManifest'` — lets you write your own service worker (`src/sw.js`); add `precacheAndRoute(self.__WB_MANIFEST)` to keep PWA caching. SW only bundles in a prod build, not dev.
+- Web Push subscription — `registration.pushManager.subscribe({ userVisibleOnly, applicationServerKey })`; `applicationServerKey` must be a `Uint8Array` (convert VAPID base64 key with a `urlBase64ToUint8Array` helper).
+- `import.meta.env.VITE_*` — Vite exposes env vars to the browser only when prefixed `VITE_`. `process.env` is server-only and doesn't exist in the browser.
+- Strings are immutable in JS — `.replace()`/`.replaceAll()`/`.concat()` return new strings; you must assign the result, they don't mutate in place.
+- `useEffect(() => {...}, [])` — runs a function after render; empty `[]` = once on mount. A dependency array like `[goals]` re-runs when that value changes. The callback can't be `async` — define an inner async function and call it.
+- `fetch(url, { method, headers, body })` — browser HTTP. Two awaits: one for the response, one for `response.json()`. POST body must be `JSON.stringify(...)`.
+- Spread operator `[...arr, newItem]` — unpacks an array into a new one; the React-idiomatic way to add to array state immutably.
+- Anthropic Messages API — conversation is a list of `{ role: 'user'|'assistant', content }`; must start with a `user` message. The client always sends at least one message to get a response.
+- Dexie schema versioning — bump `this.version(n)` and add a new `.stores({...})` block to add a table to an existing IndexedDB; Dexie migrates automatically.
+- Dexie `.where('field').equals(value).toArray()` — indexed query filtering a table by a field (e.g. activities for one goal).
+- `verbatimModuleSyntax` — a value import that resolves to a type-only declaration errors; rename to avoid name collisions between a component and a same-named type.
 - `useLiveQuery(() => db.table.toArray())` — Dexie hook that re-renders the component whenever the queried data changes.
 - `useNavigate()` returns a function; call it with a path to navigate programmatically (e.g. after form submit).
 - `.map()` on arrays in JSX — must be wrapped in `{}` and each item needs a `key` prop.
@@ -259,4 +279,4 @@ Auto-updating. When a new concept is genuinely learned (not just touched), appen
 
 ---
 
-_Last updated: Phase 2 complete (2026-05-23)._
+_Last updated: Phases 3-5 complete, Phase 6 Web Push shipped (2026-06-01)._
