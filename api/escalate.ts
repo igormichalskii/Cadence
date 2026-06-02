@@ -3,7 +3,7 @@ import { handle } from "hono/vercel";
 import { kv } from "@vercel/kv";
 import webpush from "web-push";
 import Anthropic from "@anthropic-ai/sdk";
-import { JARVIS_SYSTEM } from "./_jarvis";
+import { JARVIS_SYSTEM } from "./_jarvis.js";
 
 webpush.setVapidDetails(
     process.env.VAPID_MAILTO!,

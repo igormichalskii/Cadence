@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { sql, gt } from "drizzle-orm";
-import { db, neonSql, syncRecords } from "./_db";
+import { db, neonSql, syncRecords } from "./_db.js";
 
 export const config = { runtime: 'nodejs' }
 

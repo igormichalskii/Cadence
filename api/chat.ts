@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { handle } from 'hono/vercel'
 import { Hono } from "hono"
-import { JARVIS_SYSTEM } from "./_jarvis"
+import { JARVIS_SYSTEM } from "./_jarvis.js"
 
 export const config = { runtime: 'nodejs' }
 
