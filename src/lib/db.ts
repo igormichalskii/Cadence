@@ -38,6 +38,23 @@ class CadenceDB extends Dexie {
             pulse_decisions: 'id, pulse_id, goal_id',
             observations: 'id, goal_id, timestamp, kind'
         })
+        // v6: add the updated_at watermark (indexed) for cross-device sync, and
+        // backfill it on existing rows from their creation timestamp.
+        this.version(6).stores({
+            goals: 'id, type, status, created_at, updated_at',
+            checkins: 'id, kind, timestamp, updated_at',
+            activities: 'id, goal_id, timestamp, updated_at',
+            pulses: 'id, week_start, updated_at',
+            pulse_decisions: 'id, pulse_id, goal_id, updated_at',
+            observations: 'id, goal_id, timestamp, kind'
+        }).upgrade(async tx => {
+            const now = Date.now()
+            await tx.table('goals').toCollection().modify(g => { g.updated_at = g.created_at ?? now })
+            await tx.table('checkins').toCollection().modify(c => { c.updated_at = c.timestamp ?? now })
+            await tx.table('activities').toCollection().modify(a => { a.updated_at = a.timestamp ?? now })
+            await tx.table('pulses').toCollection().modify(p => { p.updated_at = p.week_start ?? now })
+            await tx.table('pulse_decisions').toCollection().modify(d => { d.updated_at = now })
+        })
     }
 }
 

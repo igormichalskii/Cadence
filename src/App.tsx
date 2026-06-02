@@ -1,5 +1,7 @@
 import './App.css'
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { sync } from './lib/sync'
 import Goals from './pages/Goals'
 import Ask from './pages/Ask'
 import Pulse from './pages/Pulse'
@@ -18,6 +20,15 @@ function isFocusedFlow(path: string): boolean {
 function Layout() {
   const { pathname } = useLocation()
   const focused = isFocusedFlow(pathname)
+
+  // Pull on launch and whenever the app regains focus (e.g. switching back to
+  // the PWA on the phone). No-op until a sync passphrase is set.
+  useEffect(() => {
+    void sync()
+    function onVisible() { if (document.visibilityState === 'visible') void sync() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
   return (
     <>
       <main className={focused ? 'app-content' : 'app-content with-nav'}>

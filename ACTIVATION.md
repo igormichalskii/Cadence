@@ -73,8 +73,66 @@ To change the time, edit the `schedule` in `vercel.json` (cron is UTC).
 PC startup auto-open — see `scripts/startup-README.md`. One-time Task Scheduler
 registration on your machine.
 
+---
+
+# Activation checklist — cross-device sync
+
+Brought forward from post-alpha by explicit decision. Lets goals/activities/
+check-ins/pulses sync between your laptop and phone. ~10 minutes.
+
+## 1. Create a Neon Postgres database
+
+Vercel dashboard → project → **Storage** → **Create** → **Postgres** (Neon),
+or sign up at neon.tech and copy the connection string. Connecting it via the
+Vercel dashboard injects `DATABASE_URL` automatically; otherwise add it:
+
+```powershell
+vercel env add DATABASE_URL   # paste the Neon connection string
+```
+
+The `sync_records` table auto-creates on the first sync call — no migrations.
+
+## 2. Set the sync passphrase secret
+
+Pick a passphrase and set it server-side:
+
+```powershell
+vercel env add SYNC_SECRET
+```
+
+This is the shared secret the endpoint checks. It is **not** in the client
+bundle — you type it into each device once (next step).
+
+## 3. Deploy
+
+```powershell
+vercel --prod
+```
+
+## 4. Connect each device
+
+Open the app on the laptop → tap **Sync** on Today → enter the passphrase from
+step 2. Repeat on the phone with the *same* passphrase. The first sync pushes
+that device's data up and pulls everything else down. After that it syncs on
+launch, when the app regains focus, and after every change.
+
+## How it works (for future reference)
+
+- Local-first is unchanged — IndexedDB stays the source of truth. Sync is a
+  push-then-pull against `/api/sync`.
+- Conflicts resolve **last-write-wins** by each record's `updated_at` (stamped
+  on every write).
+- Observations are **not** synced — they're AI-derived and each device
+  regenerates them.
+- Auth is a single shared passphrase (sent as a bearer token), not real
+  accounts. Fine for one person on two devices; revisit if Cadence ever goes
+  multi-user.
+
+---
+
 ## Note on scope
 
-This adds a minimal one-way device→server push (subscription + a check-in
-snapshot in KV). It is **not** general sync — goals, activities, and the rest
-still live only in IndexedDB. Full sync + auth remain post-alpha.
+Escalation adds a minimal one-way device→server push (subscription + a check-in
+snapshot in KV). Cross-device sync (above) now mirrors the core tables through
+Postgres. Multi-user accounts / real auth remain post-alpha — the passphrase is
+a single-user stand-in.

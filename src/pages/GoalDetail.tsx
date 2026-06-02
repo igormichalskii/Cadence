@@ -2,6 +2,7 @@ import { Link, useParams, useNavigate } from "react-router-dom"
 import { useLiveQuery } from "dexie-react-hooks"
 import { IconArrowLeft, IconClock } from "@tabler/icons-react"
 import { db } from "../lib/db"
+import { sync } from "../lib/sync"
 import type { Activity } from "../lib/types"
 
 const STATUS_LABEL: Record<Activity['status'], string> = {
@@ -19,7 +20,8 @@ export default function GoalDetail() {
     if (!goal) return <p className="goals-empty">Loading…</p>
 
     async function setStatus(status: 'active' | 'paused' | 'killed') {
-        await db.goals.update(id!, { status })
+        await db.goals.update(id!, { status, updated_at: Date.now() })
+        void sync()
         if (status === 'killed') navigate('/goals')
     }
 
@@ -28,9 +30,11 @@ export default function GoalDetail() {
             id: crypto.randomUUID(),
             goal_id: id!,
             timestamp: Date.now(),
-            status
+            status,
+            updated_at: Date.now()
         }
         await db.activities.add(activity)
+        void sync()
     }
 
     return (

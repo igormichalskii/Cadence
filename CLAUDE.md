@@ -221,7 +221,9 @@ Note: escalation adds a deliberate, minimal one-way device→server push (subscr
 
 **Total**: 11-12 weeks focused; realistic 4-5 months part-time.
 
-**Post-alpha** (don't build until alpha is in daily use): cloud sync + auth, Google Calendar two-way sync, Insights tab with the six visualizations, goal-type detail view variants (project / learning / outcome / direction), onboarding flow, generalization for other users.
+**Post-alpha** (don't build until alpha is in daily use): ~~cloud sync~~ (brought forward — see below), auth, Google Calendar two-way sync, Insights tab with the six visualizations, goal-type detail view variants (project / learning / outcome / direction), onboarding flow, generalization for other users.
+
+**Cross-device sync — brought forward (Igor's decision, overriding the post-alpha default).** Core tables (goals, check-ins, activities, pulses, pulse-decisions) now sync laptop↔phone through Neon Postgres + Drizzle (`api/_db.ts`, `api/sync.ts`), last-write-wins by `updated_at`, with a single shared-passphrase stand-in for auth (`SYNC_SECRET`). Local-first is unchanged — IndexedDB stays the source of truth; sync is push-then-pull on launch / focus / after writes. Observations are not synced (AI-derived, regenerated per device). Real multi-user auth is still post-alpha. Provisioning: see `ACTIVATION.md`.
 
 ---
 
@@ -243,6 +245,9 @@ Calibrate your teaching to these preferences. These are not optional.
 
 Auto-updating. When a new concept is genuinely learned (not just touched), append a one-line summary. Most-recent on top.
 
+- Drizzle ORM + Neon serverless — `drizzle(neon(process.env.DATABASE_URL))`; define tables with `pgTable`; last-write-wins upsert via `.onConflictDoUpdate({ target, set: { col: sql\`excluded.col\` }, setWhere: sql\`...\` })`. Reference the conflicting row with `excluded.*` through the `sql` operator.
+- Cross-device sync (last-write-wins) — one generic `sync_records(table_name, id, updated_at, data jsonb)` blob table covers every synced Dexie table. Client holds two watermarks: `lastPush` (client clock, filters which local rows to send) and `lastPull` (server clock, filters which server rows to request) — separate because the two clocks differ. One request does push-then-pull.
+- Dexie `.upgrade()` — a `version(n).stores({...}).upgrade(async tx => {...})` runs once when migrating; use it to backfill a new field on existing rows, e.g. `tx.table('goals').toCollection().modify(g => { g.updated_at = g.created_at })`.
 - Vercel Cron — declared in `vercel.json` (`{ "crons": [{ "path", "schedule" }] }`); Vercel hits the path on a cron schedule (UTC). Hobby plan = once-per-day granularity, so branch logic by day/state inside one job. Vercel sends `Authorization: Bearer ${CRON_SECRET}` if that env var is set — check it to keep the endpoint private.
 - Vercel KV (`@vercel/kv`) — serverless key-value (Upstash Redis). `import { kv }; await kv.set(key, obj); await kv.get<T>(key)`. Stores/serializes JSON automatically. Creating a KV store in the dashboard injects `KV_REST_API_URL`/`KV_REST_API_TOKEN`.
 - Vercel function file convention — each `api/*.ts` is a separate serverless function; a leading underscore (`api/_jarvis.ts`) keeps a file from being treated as a route, so it's safe to use as a shared import.
@@ -287,4 +292,4 @@ Auto-updating. When a new concept is genuinely learned (not just touched), appen
 
 ---
 
-_Last updated: Phase 6 complete in code — escalation (KV + Cron), observation generation, PC-startup script. Activation + live testing pending (2026-06-01)._
+_Last updated: Phase 6 complete; UI built to UI-GUIDE; cross-device sync (Neon + Drizzle, LWW) brought forward from post-alpha. Activation + live testing pending (2026-06-02)._

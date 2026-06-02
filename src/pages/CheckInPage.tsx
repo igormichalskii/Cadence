@@ -3,6 +3,7 @@ import { db } from "../lib/db"
 import type { CheckIn } from "../lib/types"
 import { useNavigate } from "react-router-dom"
 import { postState } from "../lib/state"
+import { sync } from "../lib/sync"
 
 const ENERGY: CheckIn['energy'][] = ['low', 'mid', 'high']
 const MIND: CheckIn['mind'][] = ['focused', 'scattered', 'heavy', 'calm', 'tired']
@@ -25,9 +26,11 @@ function CheckInPage() {
             timestamp: Date.now(),
             energy,
             mind,
-            note: note || undefined
+            note: note || undefined,
+            updated_at: Date.now()
         }
         await db.checkins.add(checkin)
+        void sync()
         // Snapshot the check-in to the server so the escalation cron can read today's state.
         await postState({ checkIn: { timestamp: checkin.timestamp, energy, mind } })
         try {
@@ -37,7 +40,7 @@ function CheckInPage() {
                 body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
             })
             const data = await response.json();
-            await db.checkins.update(checkin.id, { ai_synthesis: data.content })
+            await db.checkins.update(checkin.id, { ai_synthesis: data.content, updated_at: Date.now() })
         } catch {
             // AI unreachable — the check-in is saved regardless.
         }

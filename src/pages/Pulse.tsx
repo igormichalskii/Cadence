@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconX, IconTrendingUp, IconClockExclamation, IconAlertCircle, IconMessageCircle } from "@tabler/icons-react";
 import { generateObservations } from "../lib/observations";
+import { sync } from "../lib/sync";
 
 function ObsIcon({ kind }: { kind: Observation['kind'] }) {
     if (kind === 'pattern') return <IconTrendingUp className="obs-icon" size={16} stroke={1.5} />
@@ -50,11 +51,13 @@ function Pulse() {
             id: crypto.randomUUID(),
             pulse_id: 'current',
             goal_id: goalId,
-            decision
+            decision,
+            updated_at: Date.now()
         }
         await db.pulse_decisions.add(pulseDecision)
-        if (decision === 'pause') await db.goals.update(goalId, { status: 'paused' });
-        if (decision === 'kill') await db.goals.update(goalId, { status: 'killed' });
+        if (decision === 'pause') await db.goals.update(goalId, { status: 'paused', updated_at: Date.now() });
+        if (decision === 'kill') await db.goals.update(goalId, { status: 'killed', updated_at: Date.now() });
+        void sync()
     }
 
     const weekLabel = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toUpperCase()

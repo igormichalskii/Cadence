@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { db } from '../lib/db'
+import { sync } from '../lib/sync'
 import type { Goal } from '../lib/types'
 
 export default function CreateGoal() {
@@ -27,8 +28,10 @@ export default function CreateGoal() {
             frequency_target: frequencyTarget || undefined,
             status: 'active',
             created_at: Date.now(),
+            updated_at: Date.now(),
         }
         await db.goals.add(goal)
+        void sync()
         navigate('/goals')
     }
 

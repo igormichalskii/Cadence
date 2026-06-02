@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconClock, IconPlus, IconCheck, IconMessageCircle, IconBell } from '@tabler/icons-react'
+import { IconClock, IconPlus, IconCheck, IconMessageCircle, IconBell, IconRefresh } from '@tabler/icons-react'
 import { db } from '../lib/db'
 import type { Activity } from '../lib/types'
 import { subscribeToPush } from '../lib/push'
+import { sync, hasSyncPassphrase, setSyncPassphrase } from '../lib/sync'
 
 function cap(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1)
@@ -45,14 +46,29 @@ function Today() {
         fetchGreeting()
     }, [])
 
+    async function handleSync() {
+        if (!hasSyncPassphrase()) {
+            const p = window.prompt('Enter your sync passphrase (same on every device)')
+            if (!p) return
+            setSyncPassphrase(p.trim())
+        }
+        const result = await sync()
+        if (!result.ok && result.reason === 'http-401') {
+            localStorage.removeItem('syncSecret')
+            window.alert('Sync passphrase rejected — try again.')
+        }
+    }
+
     async function markDone(goalId: string) {
         const activity: Activity = {
             id: crypto.randomUUID(),
             goal_id: goalId,
             timestamp: Date.now(),
-            status: 'done'
+            status: 'done',
+            updated_at: Date.now()
         }
         await db.activities.add(activity)
+        void sync()
         setDone(prev => new Set(prev).add(goalId))
     }
 
@@ -123,10 +139,16 @@ function Today() {
                 </div>
             </div>
 
-            <button className="btn-secondary" onClick={subscribeToPush} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
-                <IconBell size={14} stroke={1.5} />
-                Enable notifications
-            </button>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button className="btn-secondary" onClick={subscribeToPush} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
+                    <IconBell size={14} stroke={1.5} />
+                    Notifications
+                </button>
+                <button className="btn-secondary" onClick={handleSync} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
+                    <IconRefresh size={14} stroke={1.5} />
+                    Sync
+                </button>
+            </div>
         </div>
     )
 }

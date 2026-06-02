@@ -12,10 +12,12 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
     "@fontsource/inter": "^5.2.8",
+    "@neondatabase/serverless": "^1.1.0",
     "@tabler/icons-react": "^3.44.0",
     "@vercel/kv": "^3.0.0",
     "dexie": "^4.4.2",
     "dexie-react-hooks": "^4.4.0",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.12.22",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

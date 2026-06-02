@@ -1,3 +1,7 @@
+// `updated_at` (ms) is the last-write-wins watermark used by cross-device sync.
+// Stamp it on every create and update. Observation is excluded from sync
+// (AI-derived; each device regenerates it) and so has no updated_at.
+
 export interface Goal {
     id: string;
     name: string;
@@ -10,6 +14,7 @@ export interface Goal {
     status: 'active' | 'paused' | 'killed';
     linked_outcome_id?: string;
     created_at: number;
+    updated_at: number;
 }
 
 export interface CheckIn {
@@ -20,6 +25,7 @@ export interface CheckIn {
     mind: ('focused' | 'scattered' | 'heavy' | 'calm' | 'tired');
     note?: string;
     ai_synthesis?: string;
+    updated_at: number;
 }
 
 export interface Activity {
@@ -29,6 +35,7 @@ export interface Activity {
     status: ('done' | 'missed_drift' | 'missed_life');
     duration_min?: number;
     note?: string;
+    updated_at: number;
 }
 
 export interface Observation {
@@ -44,6 +51,7 @@ export interface Pulse {
     week_start: number;
     opening_synthesis: string;
     next_week_focus?: string;
+    updated_at: number;
 }
 
 export interface PulseDecision {
@@ -52,4 +60,5 @@ export interface PulseDecision {
     goal_id: string;
     decision: ('keep' | 'evolve' | 'pause' | 'kill');
     note?: string;
+    updated_at: number;
 }
